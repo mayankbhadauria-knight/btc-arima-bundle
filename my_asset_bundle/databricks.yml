@@ -1,0 +1,21 @@
+bundle:
+  name: btc-arima-bundle
+
+resources:
+  jobs:
+    btc_arima_notebook_job:
+      name: "BTC ARIMA - Notebook Train & Predict"
+      tasks:
+        - task_key: run_train_model_notebook
+          notebook_task:
+            notebook_path: "/Workspace/Users/mayank.bhadauria@datanimbus.com/ml_asset_model/src/train_model"
+          # no job_cluster_key, no existing_cluster_id, no new_cluster
+          # -> Databricks will run this on serverless compute
+
+targets:
+  dev:
+    default: true
+    workspace:
+      host: https://dnimbus-partner-workspace.cloud.databricks.com
+      root_path: /Users/mayank.bhadauria@datanimbus.com/btc_arima_bundle
+      profile: mayank.bhadauria@datanimbus.com
