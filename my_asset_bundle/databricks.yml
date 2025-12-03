@@ -1,6 +1,40 @@
 bundle:
   name: btc-arima-bundle
 
+variables:
+  # ---- workspace / target-specific ----
+  qa_host:
+    description: "QA Databricks workspace host"
+    default: "https://dnimbus-partner-workspace.cloud.databricks.com"
+  qa_root_path:
+    description: "QA root path in workspace"
+    default: "/Users/mayank.bhadauria@datanimbus.com/btc_arima_bundle"
+  qa_profile:
+    description: "Databricks CLI profile name for QA"
+    default: "mayank.bhadauria@datanimbus.com"
+
+  # ---- ML-specific (can be overridden per env) ----
+  experiment_path:
+    description: "MLflow experiment path"
+    default: "/Workspace/Users/mayank.bhadauria@datanimbus.com/ml_asset_model/btc_arima_test"
+
+  model_name:
+    description: "Full UC model name (catalog.schema.model)"
+    default: "training_2025.mayank.btc_arima_model"
+
+  model_alias:
+    description: "UC model alias to use for inference"
+    default: "champion"
+
+  data_path:
+    description: "Path to BTC CSV (volume or DBFS)"
+    default: "/Volumes/training_2025/mayank/time_series_prac/bitcoin_price.csv"
+
+# Sync local project files into workspace on deploy
+sync:
+  paths:
+    - .   # sync everything in this repo (respects .gitignore)
+
 resources:
   jobs:
     btc_arima_notebook_job:
@@ -8,9 +42,15 @@ resources:
       tasks:
         - task_key: run_train_model_notebook
           notebook_task:
-            notebook_path: "/Workspace/Users/mayank.bhadauria@datanimbus.com/ml_asset_model/src/train_model"
-          # no job_cluster_key, no existing_cluster_id, no new_cluster
-          # -> Databricks will run this on serverless compute
+            # Notebook that was synced from this repo
+            notebook_path: "${workspace.file_path}/notebooks/train_model"
+            # Parameters -> notebook widgets (dbutils.widgets.get)
+            base_parameters:
+              experiment_path: "${var.experiment_path}"
+              model_name: "${var.model_name}"
+              model_alias: "${var.model_alias}"
+              data_path: "${var.data_path}"
+          # no cluster config -> serverless compute
 
 targets:
   dev:
@@ -19,3 +59,9 @@ targets:
       host: https://dnimbus-partner-workspace.cloud.databricks.com
       root_path: /Users/mayank.bhadauria@datanimbus.com/btc_arima_bundle
       profile: mayank.bhadauria@datanimbus.com
+
+  qa:
+    workspace:
+      host: ${var.qa_host}
+      root_path: ${var.qa_root_path}
+      profile: ${var.qa_profile}
