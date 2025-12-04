@@ -2,7 +2,6 @@ bundle:
   name: btc-arima-bundle
 
 variables:
-  # ---- workspace / target-specific ----
   qa_host:
     description: "QA Databricks workspace host"
     default: "https://dnimbus-partner-workspace.cloud.databricks.com"
@@ -13,7 +12,6 @@ variables:
     description: "Databricks CLI profile name for QA"
     default: "mayank.bhadauria@datanimbus.com"
 
-  # ---- ML-specific (can be overridden per env) ----
   experiment_path:
     description: "MLflow experiment path"
     default: "/Workspace/Users/mayank.bhadauria@datanimbus.com/ml_asset_model/btc_arima_test"
